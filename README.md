@@ -13,6 +13,7 @@ MultiSubAutoPIM enumerates your eligible Privileged Identity Management (PIM) ro
 | Feature | Detail |
 |---|---|
 | **Multi-subscription** | Processes N subscriptions sequentially |
+| **Role filtering** | Activate only specific roles by display name with `-r` |
 | **Smart skip** | Detects already-activated roles and skips them |
 | **Scope-aware** | Handles both subscription-level and resource-group-level role assignments |
 | **Policy-aware duration** | Reads the maximum allowed activation duration from PIM policy settings per role — no hardcoded values |
@@ -36,11 +37,11 @@ MultiSubAutoPIM enumerates your eligible Privileged Identity Management (PIM) ro
 git clone <repo-url> && cd MultiSubAutoPIM
 dotnet build
 
-# Activate PIM roles on the default subscriptions
+# Activate all eligible PIM roles on the default subscriptions
 dotnet run
 
-# Activate PIM roles on specific subscriptions
-dotnet run -- <subscription-id-1> <subscription-id-2> ...
+# Show help
+dotnet run -- --help
 ```
 
 ## Publish a Single-File Binary
@@ -68,18 +69,29 @@ Output lands in `bin/Release/net10.0/<rid>/publish/`.
 ## Usage Examples
 
 ```bash
-# Use default hardcoded subscriptions
+# Use default hardcoded subscriptions, activate all eligible roles
 ./MultiSubAutoPIM
 
-# Pass one subscription
-./MultiSubAutoPIM 759748fa-fab2-4225-b0e1-6a7b560f9a47
+# Activate all roles on specific subscriptions
+./MultiSubAutoPIM -s 759748fa-fab2-4225-b0e1-6a7b560f9a47 \
+                  -s 30274081-925c-418f-9d14-1bd830051c6c
 
-# Pass multiple subscriptions
-./MultiSubAutoPIM \
-  759748fa-fab2-4225-b0e1-6a7b560f9a47 \
-  30274081-925c-418f-9d14-1bd830051c6c \
-  5271b72d-a0d6-4ee7-adae-7a9af717eb0f
+# Activate only Contributor across all default subscriptions
+./MultiSubAutoPIM -r Contributor
+
+# Activate specific roles on specific subscriptions
+./MultiSubAutoPIM -s 759748fa-fab2-4225-b0e1-6a7b560f9a47 \
+                  -r Contributor -r "Key Vault Secrets User"
 ```
+
+### CLI Options
+
+| Flag | Description |
+|---|---|
+| `-s`, `--subscription` | One or more subscription IDs (repeatable) |
+| `-r`, `--role` | One or more role display names to activate (repeatable) |
+| `-h`, `--help` | Show help and usage information |
+| `--version` | Show version information |
 
 ### Sample Output
 
@@ -116,6 +128,7 @@ Each activation automatically uses the **maximum allowed duration** defined in t
 | `Azure.Identity` | Authentication (`DefaultAzureCredential`) |
 | `Azure.ResourceManager` | ARM client & resource model |
 | `Azure.ResourceManager.Authorization` | PIM role eligibility & activation APIs |
+| `System.CommandLine` | CLI argument parsing (`-s`, `-r`, `--help`) |
 
 ## Credits
 
