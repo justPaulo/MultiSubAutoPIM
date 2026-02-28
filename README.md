@@ -73,14 +73,14 @@ Output lands in `bin/Release/net10.0/<rid>/publish/`.
 ./MultiSubAutoPIM
 
 # Activate all roles on specific subscriptions
-./MultiSubAutoPIM -s 759748fa-fab2-4225-b0e1-6a7b560f9a47 \
-                  -s 30274081-925c-418f-9d14-1bd830051c6c
+./MultiSubAutoPIM -s 7f33662f-4767-4530-ac72-47b1e213e3fb \
+                  -s f99d49e2-a191-4ec6-bb5f-5547ff950d78
 
 # Activate only Contributor across all default subscriptions
 ./MultiSubAutoPIM -r Contributor
 
 # Activate specific roles on specific subscriptions
-./MultiSubAutoPIM -s 759748fa-fab2-4225-b0e1-6a7b560f9a47 \
+./MultiSubAutoPIM -s 7f33662f-4767-4530-ac72-47b1e213e3fb \
                   -r Contributor -r "Key Vault Secrets User"
 ```
 
@@ -96,14 +96,14 @@ Output lands in `bin/Release/net10.0/<rid>/publish/`.
 ### Sample Output
 
 ```
-Current Subscription: msa-001766 (Dev/Dev-Int/Dev-Test)
+Current Subscription: msa-991233
   ✓ Activated 'Contributor' (8h)
   ✓ Skipping 'Reader' - Already active
   ✓ Activated 'Key Vault Secrets User' (24h)
-Current Subscription: msa-001767 (Pre-Prod / Hotfix)
+Current Subscription: msa-991234
   ✓ Activated 'Contributor' (8h)
   ✗ Failed to activate 'Owner': Requestor does not have permission...
-Current Subscription: msa-001768 (Prod)
+Current Subscription: msa-991235
   ✓ Skipping 'Contributor' - Already active
 ```
 
