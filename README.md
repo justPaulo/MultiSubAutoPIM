@@ -140,11 +140,12 @@ Each activation automatically uses the **maximum allowed duration** defined in t
 | `System.CommandLine` | CLI argument parsing (`-s`, `-r`, `--help`) |
 
 ## Double VCS support
+Add GitHub as a second remote
 
-# Add GitHub as a second remote
 git remote add github https://github.com/<your-username>/MultiSubAutoPIM.git
 
 # Push to both
+
 git push origin main    # GitLab
 git push github main    # GitHub
 
