@@ -2,6 +2,7 @@
 
 using System.CommandLine;
 using System.CommandLine.Parsing;
+using System.Text.Json;
 using Azure;
 using Azure.Core;
 using Azure.Identity;
@@ -9,13 +10,9 @@ using Azure.ResourceManager;
 using Azure.ResourceManager.Authorization;
 using Azure.ResourceManager.Authorization.Models;
 
-// Default subscriptions when none are provided as arguments
-string[] defaultSubscriptions =
-[
-    "759748fa-fab2-4225-b0e1-6a7b560f9a47", // msa-001766 (Dev/Dev-Int/Dev-Test)
-    "30274081-925c-418f-9d14-1bd830051c6c", // msa-001767 (Pre-Prod / Hotfix)
-    "5271b72d-a0d6-4ee7-adae-7a9af717eb0f", // msa-001768 (Prod)
-];
+// Load default subscriptions from config.json (not tracked by git).
+// Falls back to config.template.json if config.json is missing.
+string[] defaultSubscriptions = LoadSubscriptionsFromConfig();
 
 var subsOption = new Option<string[]>("-s", "--subscription")
 {
@@ -231,4 +228,65 @@ static async Task<Dictionary<string, TimeSpan>> GetMaxActivationDurationsAsync(A
     }
     catch { /* ignore errors fetching policy assignments */ }
     return result;
+}
+
+/// <summary>
+/// Loads subscription IDs from config.json (user-specific, git-ignored).
+/// Falls back to config.template.json if config.json is missing.
+/// </summary>
+static string[] LoadSubscriptionsFromConfig()
+{
+    var exeDir = AppContext.BaseDirectory;
+    var workDir = Directory.GetCurrentDirectory();
+
+    // Look for config.json next to the executable first, then in the working directory
+    string? configPath = null;
+    foreach (var dir in new[] { workDir, exeDir })
+    {
+        var candidate = Path.Combine(dir, "config.json");
+        if (File.Exists(candidate)) { configPath = candidate; break; }
+    }
+
+    // Fall back to config.template.json
+    if (configPath is null)
+    {
+        foreach (var dir in new[] { workDir, exeDir })
+        {
+            var candidate = Path.Combine(dir, "config.template.json");
+            if (File.Exists(candidate)) { configPath = candidate; break; }
+        }
+        if (configPath is not null)
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine($"⚠ config.json not found — using template: {configPath}");
+            Console.WriteLine("  Copy config.template.json to config.json and add your subscription IDs.");
+            Console.ResetColor();
+        }
+    }
+
+    if (configPath is null)
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine("✗ No config.json or config.template.json found. Supply subscriptions via -s or create a config file.");
+        Console.ResetColor();
+        return [];
+    }
+
+    try
+    {
+        var json = File.ReadAllText(configPath);
+        using var doc = JsonDocument.Parse(json);
+        var subs = doc.RootElement.GetProperty("subscriptions");
+        return subs.EnumerateArray()
+            .Select(e => e.GetProperty("id").GetString()!)
+            .Where(id => !string.IsNullOrWhiteSpace(id))
+            .ToArray();
+    }
+    catch (Exception ex)
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine($"✗ Failed to read {configPath}: {ex.Message}");
+        Console.ResetColor();
+        return [];
+    }
 }

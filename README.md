@@ -18,7 +18,7 @@ MultiSubAutoPIM enumerates your eligible Privileged Identity Management (PIM) ro
 | **Scope-aware** | Handles both subscription-level and resource-group-level role assignments |
 | **Policy-aware duration** | Reads the maximum allowed activation duration from PIM policy settings per role — no hardcoded values |
 | **Conflict-safe** | Catches "already exists" API errors gracefully |
-| **Zero config** | Falls back to hardcoded subscription IDs when no arguments are given |
+| **External config** | Loads subscription IDs from `config.json` (git-ignored) — no secrets in source |
 
 ## Prerequisites
 
@@ -109,15 +109,24 @@ Current Subscription: msa-001768 (Prod)
 
 ## Configuration
 
-Edit the `defaultSubscriptions` array in [Program.cs](Program.cs) to change the fallback subscription IDs:
+Copy the template config file and add your subscription IDs:
 
-```csharp
-string[] defaultSubscriptions =
-[
-    "your-subscription-id-1",
-    "your-subscription-id-2",
-];
+```bash
+cp config.template.json config.json
 ```
+
+Then edit `config.json` (git-ignored, never committed):
+
+```json
+{
+  "subscriptions": [
+    { "id": "your-subscription-id-1", "name": "My Dev subscription" },
+    { "id": "your-subscription-id-2", "name": "My Prod subscription" }
+  ]
+}
+```
+
+The app looks for `config.json` in the current working directory first, then next to the executable. If neither exists, it falls back to `config.template.json` with a warning.
 
 Each activation automatically uses the **maximum allowed duration** defined in the PIM policy for that specific role and scope (e.g., 8h for Contributor, 24h for Key Vault Secrets User). If the policy cannot be read, it falls back to **8 hours**. The justification defaults to `"Needed for work."` — adjust it in the `RoleAssignmentScheduleRequestData` block if needed.
 

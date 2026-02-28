@@ -41,3 +41,6 @@ project.lock.json
 
 ## Publish output
 publish/
+
+## User-specific config (contains real subscription IDs)
+config.json

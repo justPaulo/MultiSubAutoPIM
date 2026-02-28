@@ -1,0 +1,6 @@
+{
+  "subscriptions": [
+    { "id": "00000000-0000-0000-0000-000000000001", "name": "My first subscription" },
+    { "id": "00000000-0000-0000-0000-000000000002", "name": "My second subscription" }
+  ]
+}
