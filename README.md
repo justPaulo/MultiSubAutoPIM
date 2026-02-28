@@ -15,6 +15,7 @@ MultiSubAutoPIM enumerates your eligible Privileged Identity Management (PIM) ro
 | **Multi-subscription** | Processes N subscriptions sequentially |
 | **Smart skip** | Detects already-activated roles and skips them |
 | **Scope-aware** | Handles both subscription-level and resource-group-level role assignments |
+| **Policy-aware duration** | Reads the maximum allowed activation duration from PIM policy settings per role — no hardcoded values |
 | **Conflict-safe** | Catches "already exists" API errors gracefully |
 | **Zero config** | Falls back to hardcoded subscription IDs when no arguments are given |
 
@@ -84,11 +85,11 @@ Output lands in `bin/Release/net10.0/<rid>/publish/`.
 
 ```
 Current Subscription: msa-001766 (Dev/Dev-Int/Dev-Test)
-  ✓ Activated 'Contributor'
+  ✓ Activated 'Contributor' (8h)
   ✓ Skipping 'Reader' - Already active
-  ✓ Activated 'Key Vault Secrets User'
+  ✓ Activated 'Key Vault Secrets User' (24h)
 Current Subscription: msa-001767 (Pre-Prod / Hotfix)
-  ✓ Activated 'Contributor'
+  ✓ Activated 'Contributor' (8h)
   ✗ Failed to activate 'Owner': Requestor does not have permission...
 Current Subscription: msa-001768 (Prod)
   ✓ Skipping 'Contributor' - Already active
@@ -106,7 +107,7 @@ string[] defaultSubscriptions =
 ];
 ```
 
-All activations use a **24-hour duration** with justification `"Needed for work."`. Adjust the `Duration` and `Justification` fields in the `RoleAssignmentScheduleRequestData` block if needed.
+Each activation automatically uses the **maximum allowed duration** defined in the PIM policy for that specific role and scope (e.g., 8h for Contributor, 24h for Key Vault Secrets User). If the policy cannot be read, it falls back to **8 hours**. The justification defaults to `"Needed for work."` — adjust it in the `RoleAssignmentScheduleRequestData` block if needed.
 
 ## Dependencies
 

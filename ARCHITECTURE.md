@@ -20,23 +20,23 @@ flowchart TD
         direction TB
         Resolve[Resolve SubscriptionResource] --> Fetch{Fetch subscription metadata}
         Fetch -- Error --> Skip[Skip subscription]
-        Fetch -- OK --> PrintSub["Print subscription name 🟢"]
+        Fetch -- OK --> PrintSub["Print subscription name"]
 
-        PrintSub --> GetActive[Get active role assignment instances\nFilter: Status = Provisioned]
-        GetActive --> GetEligible[Get eligible role schedules\nFilter: Scope = Subscription | ResourceGroup]
-        GetEligible --> Group[Group by RoleName + Scope\nTake first per group]
+        PrintSub --> GetActive["Get active role assignment instances<br/>Filter: Status = Provisioned"]
+        GetActive --> GetEligible["Get eligible role schedules<br/>Filter: Scope = Subscription or ResourceGroup"]
+        GetEligible --> Group["Group by RoleName + Scope<br/>Take first per group"]
 
         Group --> RoleLoop
 
         subgraph RoleLoop ["For each Eligible Role"]
             direction TB
-            CheckActive{Role already active\nat this scope?}
-            CheckActive -- Yes --> SkipRole["Print skip message 🟡"]
+            CheckActive{"Role already active<br/>at this scope?"}
+            CheckActive -- Yes --> SkipRole["Print skip message"]
             CheckActive -- No --> Activate
 
-            subgraph Activate [Self-Activate]
+            subgraph Activate ["Self-Activate"]
                 direction TB
-                BuildReq[Build RoleAssignmentScheduleRequest\n• SelfActivate\n• 24h duration\n• Justification] --> DetectScope{Scope contains\n/resourceGroups/?}
+                BuildReq["Build RoleAssignmentScheduleRequest<br/>SelfActivate / max duration / Justification"] --> DetectScope{"Scope contains<br/>/resourceGroups/?"}
                 DetectScope -- Yes --> RGScope[Use ResourceGroupResource]
                 DetectScope -- No --> SubScope[Use SubscriptionResource]
                 RGScope --> Submit[Submit activation request]
@@ -44,13 +44,12 @@ flowchart TD
             end
 
             Submit --> Result{Result}
-            Result -- Success --> PrintOK["Print activated 🟢"]
-            Result -- Already exists --> PrintDup["Print skip 🟡"]
-            Result -- Other error --> PrintErr["Print error 🔴"]
+            Result -- Success --> PrintOK["Print activated"]
+            Result -- Already exists --> PrintDup["Print skip"]
+            Result -- Other error --> PrintErr["Print error"]
         end
     end
 
-    Skip --> Loop
     Loop --> Done([Done])
 ```
 
