@@ -139,6 +139,16 @@ Each activation automatically uses the **maximum allowed duration** defined in t
 | `Azure.ResourceManager.Authorization` | PIM role eligibility & activation APIs |
 | `System.CommandLine` | CLI argument parsing (`-s`, `-r`, `--help`) |
 
+## Double VCS support
+
+# Add GitHub as a second remote
+git remote add github https://github.com/<your-username>/MultiSubAutoPIM.git
+
+# Push to both
+git push origin main    # GitLab
+git push github main    # GitHub
+
+
 ## Credits
 
 Based on [this Stack Overflow answer](https://stackoverflow.com/questions/77627964/how-to-activate-my-roles-in-the-privileged-identity-management-in-azure-from-con), converted from PowerShell to a compiled .NET console app.
